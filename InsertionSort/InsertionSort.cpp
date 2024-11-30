@@ -20,28 +20,28 @@ int main() {
     setlocale(LC_ALL, "Russian");
 
     int len;
-    std::cout << "Введите количество элементов: ";
-    std::cin >> len;
+    cout << "Введите количество элементов: ";
+    cin >> len;
 
-    std::vector<int> arr(len);
-    std::cout << "Введите " << len << " элементов:\n";
+    vector<int> arr(len);
+    cout << "Введите " << len << " элементов:\n";
     for (int i = 0; i < len; ++i) {
-        std::cin >> arr[i];
+        cin >> arr[i];
     }
 
-    std::cout << "Несортированный массив: ";
+    cout << "Несортированный массив: ";
     for (int num : arr) {
-        std::cout << num << " ";
+        cout << num << " ";
     }
-    std::cout << std::endl;
+    cout << endl;
 
     insertionSort(arr);
 
-    std::cout << "Отсортированный массив: ";
+    cout << "Отсортированный массив: ";
     for (int num : arr) {
-        std::cout << num << " ";
+        cout << num << " ";
     }
-    std::cout << std::endl;
+    cout << endl;
 
     return 0;
 }

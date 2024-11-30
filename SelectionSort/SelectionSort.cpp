@@ -36,28 +36,31 @@ int main() {
     setlocale(LC_ALL, "Russian");
 
     int len;
-    std::cout << "Введите количество элементов: ";
-    std::cin >> len;
+    cout << "Введите количество элементов: ";
+    cin >> len;
 
-    std::vector<int> arr(len);
-    std::cout << "Введите " << len << " элементов: " << endl;
-    for (int i = 0; i < len; ++i) {
-        std::cin >> arr[i];
+    vector<int> arr(len);
+    cout << "Введите " << len << " элементов: " << endl;
+    for (int i = 0; i < len; ++i)
+    {
+        cin >> arr[i];
     }
 
-    std::cout << "Несортированный массив: " << endl;
-    for (int num : arr) {
-        std::cout << num << " ";
+    cout << "Несортированный массив: " << endl;
+    for (int num : arr) 
+    {
+        cout << num << " ";
     }
-    std::cout << std::endl;
+    cout << endl;
 
     SelectionSort(arr);
 
     cout << "Отсортированный массив: " << endl;
-    for (int num : arr) {
-        std::cout << num << " ";
+    for (int num : arr) 
+    {
+        cout << num << " ";
     }
-    std::cout << std::endl;
+    cout << endl;
 
     return 0;
 }
