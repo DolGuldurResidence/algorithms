@@ -1,12 +1,12 @@
-﻿# CMakeList.txt: проект CMake для calculator; включите исходный код и определения,
+﻿# CMakeList.txt: проект CMake для Calculate; включите исходный код и определения,
 # укажите здесь логику для конкретного проекта.
 #
 
 # Добавьте источник в исполняемый файл этого проекта.
-add_executable (Brackets "Brackets.cpp" )
+add_executable (Calculate "Calculate.cpp" )
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET Brackets PROPERTY CXX_STANDARD 20)
+  set_property(TARGET Calculate PROPERTY CXX_STANDARD 20)
 endif()
 
 # TODO: Добавьте тесты и целевые объекты, если это необходимо.
