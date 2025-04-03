@@ -49,7 +49,7 @@ bool isPointOnSegment(const point& p, const segment& seg) {
 }
 
 double distance(const point& p1, const point& p2) {
-	return sqrt(pow(2, (p2.x - p1.x)) + pow(2, (p2.y - p1.y)));
+	return sqrt(pow((p2.x - p1.x), 2) + pow((p2.y - p1.y), 2));
 }
 
 //метод Крамера
@@ -75,63 +75,50 @@ bool intersectLineAndSegment(const line& lin, const segment& seg, point& result)
 	return isPointOnSegment(result, seg);
 }
 
-bool intersectTwoSegments(const segment& seg1, const segment& seg2, point& result) {
+bool intersectTwoSegments(const segment& seg1, const segment& seg2, point& result) { 
+    //смотрим накладываютс ли друг на друга проеккции
     if (max(seg1.p1.x, seg1.p2.x) < min(seg2.p1.x, seg2.p2.x) ||
         max(seg2.p1.x, seg2.p2.x) < min(seg1.p1.x, seg1.p2.x) ||
         max(seg1.p1.y, seg1.p2.y) < min(seg2.p1.y, seg2.p2.y) ||
         max(seg2.p1.y, seg2.p2.y) < min(seg1.p1.y, seg1.p2.y)) {
         return false;
     }
+       
+    line l1, l2;
+    l1.a = seg1.p2.y - seg1.p1.y;
+    l1.b = seg1.p1.x - seg1.p2.x;
+    l1.c = seg1.p2.x * seg1.p1.y - seg1.p1.x * seg1.p2.y;
 
-    double cp1 = crossProduct(seg1.p1, seg1.p2, seg2.p1);
-    double cp2 = crossProduct(seg1.p1, seg1.p2, seg2.p2);
-    double cp3 = crossProduct(seg2.p1, seg2.p2, seg1.p1);
-    double cp4 = crossProduct(seg2.p1, seg2.p2, seg1.p2);
-
-    if (((cp1 > 0 && cp2 < 0) || (cp1 < 0 && cp2 > 0)) &&
-        ((cp3 > 0 && cp4 < 0) || (cp3 < 0 && cp4 > 0))) {
-        
-        line l1, l2;
-        l1.a = seg1.p2.y - seg1.p1.y;
-        l1.b = seg1.p1.x - seg1.p2.x;
-        l1.c = seg1.p2.x * seg1.p1.y - seg1.p1.x * seg1.p2.y;
-
-        l2.a = seg2.p2.y - seg2.p1.y;
-        l2.b = seg2.p1.x - seg2.p2.x;
-        l2.c = seg2.p2.x * seg2.p1.y - seg2.p1.x * seg2.p2.y;
-
-        return intersectTwoLines(l1, l2, result);
+    l2.a = seg2.p2.y - seg2.p1.y;
+    l2.b = seg2.p1.x - seg2.p2.x;
+    l2.c = seg2.p2.x * seg2.p1.y - seg2.p1.x * seg2.p2.y;
+    
+    if (!intersectTwoLines(l1, l2, result)) {
+        return false;
     }
 
-    if (equalDouble(cp1, 0) && equalDouble(cp2, 0) 
-        && equalDouble(cp3, 0) && equalDouble(cp4, 0)) {
-        
-        if (max(seg1.p1.x, seg1.p2.x) >= min(seg2.p1.x, seg2.p2.x) &&
-            max(seg2.p1.x, seg2.p2.x) >= min(seg1.p1.x, seg1.p2.x) &&
-            max(seg1.p1.y, seg1.p2.y) >= min(seg2.p1.y, seg2.p2.y) &&
-            max(seg2.p1.y, seg2.p2.y) >= min(seg1.p1.y, seg1.p2.y)) {
-
-            return false;
-        }
-    }
-
-    return false;
+    //смотрим лежит ли точка пересечения на отрезке
+    return isPointOnSegment(result, seg1) && isPointOnSegment(result, seg2);
 }
 
 vector<point> intersectCircleLine(const line& lin, const circle& circl) {
     vector<point> result;
 
     if (!equalDouble(lin.b, 0)) {
+        // Преобразование Ax + By + C = 0 к y = kx + t
         double k = -lin.a / lin.b;
         double t = -lin.c / lin.b;
 
+        // Коэффициенты квадратного уравнения 
         double a = 1 + k * k;
         double b = 2 * (k * t - k * circl.center.y - circl.center.x);
-        double c = pow(2, circl.center.x) + pow(2, t - circl.center.y) - pow(2, circl.radius);
+        double c = circl.center.x * circl.center.x +
+            pow(t - circl.center.y, 2) -
+            pow(circl.radius, 2);
 
-        double d = b * b  - 4 * a * c;
+        double d = b * b - 4 * a * c;
 
-        if (!equalDouble(d, 0)) { 
+        if (equalDouble(d, 0)) { 
             double x = -b / (2 * a);
             double y = k * x + t;
             result.push_back(point(x, y));
@@ -146,9 +133,9 @@ vector<point> intersectCircleLine(const line& lin, const circle& circl) {
             result.push_back(point(x2, y2));
         }
     }
-    else {
-        double x = -lin.c / lin.a; 
-        double d = pow(2, circl.radius) - pow(2, (x - circl.center.x));
+    else { 
+        double x = -lin.c / lin.a;
+        double d = pow(circl.radius, 2) - pow(x - circl.center.x, 2);
 
         if (equalDouble(d, 0)) {
             result.push_back(point(x, circl.center.y));
@@ -156,7 +143,7 @@ vector<point> intersectCircleLine(const line& lin, const circle& circl) {
         else if (d > 0) {
             result.push_back(point(x, circl.center.y + sqrt(d)));
             result.push_back(point(x, circl.center.y - sqrt(d)));
-        }        
+        }
     }
 
     return result;
@@ -168,7 +155,7 @@ vector<point> intersectSegCircle(const segment& seg, const circle& circl) {
     line lin;
     lin.a = seg.p2.y - seg.p1.y;
     lin.b = seg.p1.x - seg.p2.x;
-    lin.c = seg.p2.x * seg.p1.x - seg.p1.x * seg.p2.y;
+    lin.c = seg.p2.x * seg.p1.y - seg.p1.x * seg.p2.y; 
 
     vector<point> linePoints = intersectCircleLine(lin, circl);
 
@@ -203,8 +190,8 @@ vector<point> intersectTwoCircles(const circle& c1, const circle& c2) {
 
     }
     
-    double a = (pow(2, c1.radius) - pow(2, c2.radius)) / (2 * d); 
-    double h = sqrt(pow(2, c1.radius) - pow(2, a)); 
+    double a = (pow(c1.radius, 2) - pow(c2.radius, 2)) / (2 * d); 
+    double h = sqrt(pow(c1.radius, 2) - pow(a, 2)); 
 
     point p0(c1.center.x + a * (c2.center.x - c1.center.x) / d,
         c1.center.y + a * (c2.center.y - c1.center.y) / d);
@@ -291,7 +278,70 @@ int main()
 {
     setlocale(LC_ALL, "russian");
 
-    int N; 
+    vector<point> firstCaseTrue = { {8,10}, {1,6}, {3,1} ,
+        {2,6}, {3,3}, {6,8},
+        {3,6}, {3,4}, {5,7} };
+
+    vector<point> secondCaseTrue = { {-8,10}, {-1,6}, {-3,1} ,
+        {-2,6}, {-3,3}, {-6,8},
+        {-3,6}, {-3,4}, {-5,7} };
+
+    vector<point> thirdCaseTrue = { {-8,-10}, {-1,-6}, {-3,-1} ,
+        {-2,-6}, {-3,-3}, {-6,-8},
+        {-3,-6}, {-3,-4}, {-5,-7} };
+
+    vector<point> fourthCaseTrue = { {8,-10}, {1,-6}, {3,-1} ,
+        {2,-6}, {3,-3}, {6,-8},
+        {3,-6}, {3,-4}, {5,-7} };
+
+    cout << hasNestedTriangles(firstCaseTrue) << endl;
+    cout << hasNestedTriangles(secondCaseTrue) << endl;
+    cout << hasNestedTriangles(thirdCaseTrue) << endl;
+    cout << hasNestedTriangles(fourthCaseTrue) << endl;
+
+    vector<point> firstCaseCheck = {{1,7}, {6,7}, {2,1}, 
+        {3,5}, {7,2}, {8,6}, 
+        {4,5}, {6,5}, {6,3}};
+
+    vector<point> secondCaseCheck = { {-1,7}, {-6,7}, {-2,1},
+       {-3,5}, {-7,2}, {-8,6},
+       {-4,5}, {-6,5}, {-6,3} };
+
+    vector<point> thirdCaseCheck = { {-1,-7}, {-6,-7}, {-2,-1},
+       {-3,-5}, {-7,-2}, {-8,-6},
+       {-4,-5}, {-6,-5}, {-6,-3} };
+
+    vector<point> fourthCaseCheck = { {1,-7}, {6,-7}, {2,-1},
+       {3,-5}, {7,-2}, {8,-6},
+       {4,-5}, {6,-5}, {6,-3} };
+
+    cout << hasNestedTriangles(firstCaseCheck) << endl;
+    cout << hasNestedTriangles(secondCaseCheck) << endl;
+    cout << hasNestedTriangles(thirdCaseCheck) << endl;
+    cout << hasNestedTriangles(fourthCaseCheck) << endl;
+
+    vector<point> firstCaseFalse = { {1,9}, {5,9}, {1,4},
+        {3,5}, {7,7}, {7,3}, 
+        {2,4}, {2,1}, {7,1} };
+
+    vector<point> secondCaseFalse = { {-1,9}, {-5,9}, {-1,4},
+        {-3,5}, {-7,7}, {-7,3},
+        {-2,4}, {-2,1}, {-7,1} };
+
+    vector<point> thirdCaseFalse = { {-1,-9}, {-5,-9}, {-1,-4},
+        {-3,-5}, {-7,-7}, {-7,-3},
+        {-2,-4}, {-2,-1}, {-7,-1} };
+    
+    vector<point> fourthCaseFalse = { {1,-9}, {5,-9}, {1,-4},
+        {3,-5}, {7,-7}, {7,-3},
+        {2,-4}, {2,-1}, {7,-1} };
+
+    cout << hasNestedTriangles(firstCaseFalse) << endl;
+    cout << hasNestedTriangles(secondCaseFalse) << endl;
+    cout << hasNestedTriangles(thirdCaseFalse) << endl;
+    cout << hasNestedTriangles(fourthCaseFalse) << endl;
+
+    int N;
     cout << "Введите количество точек: ";
     cin >> N;
 
