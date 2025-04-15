@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -209,6 +209,7 @@ vector<point> intersectTwoCircles(const circle& c1, const circle& c2) {
 }
 
 bool isTriangleInside(const vector<point>& t1, const vector<point>& t2) {
+    //проверка вершин внутри треугольника
     for (const point& p : t1) {
         double totalAngle = 0;
         for (int i = 0; i < 3; i++) {
@@ -224,6 +225,7 @@ bool isTriangleInside(const vector<point>& t1, const vector<point>& t2) {
         if (fabs(totalAngle) < 1e-9) return false;
     }
 
+    //проверка лежат ли отрезки друг на друге
     for (int i = 0; i < 3; i++) {
         segment s1(t1[i], t1[(i + 1) % 3]);
         for (int j = 0; j < 3; j++) {
@@ -237,6 +239,7 @@ bool isTriangleInside(const vector<point>& t1, const vector<point>& t2) {
     return true;
 }
 
+
 bool hasNestedTriangles(const vector<point>& points) {
     size_t n = points.size();
     if (n < 6) return false;
@@ -246,6 +249,7 @@ bool hasNestedTriangles(const vector<point>& points) {
             for (int i3 = i2 + 1; i3 < n; ++i3) {
                 vector<point> t1 = { points[i1], points[i2], points[i3] };
 
+                //проверка на вырожденность
                 if (equalDouble(crossProduct(t1[0], t1[1], t1[2]), 0)) continue;
                 
                 for (int j1 = 0; j1 < n; ++j1) {
@@ -272,7 +276,6 @@ bool hasNestedTriangles(const vector<point>& points) {
 
     return false; 
 }
-
 
 int main()
 {
